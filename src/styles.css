@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Styles globaux optionnels */
+html, body { height: 100%; }
+
+/* Smooth scrolling for anchor navigation */
+html { scroll-behavior: smooth; }
+
+/* Section backgrounds: subtle gradients and tints per section using daisyUI theme vars */
+section#technologies,
+section#projects,
+section#competences,
+section#formation,
+section#experience,
+section#interets {
+  position: relative;
+}
+
+section#technologies {
+  background-image:
+    radial-gradient(800px 400px at 5% 10%, hsl(var(--p) / 0.12), transparent 60%),
+    radial-gradient(700px 350px at 95% 0%, hsl(var(--a) / 0.10), transparent 60%),
+    linear-gradient(180deg, hsl(var(--b2) / 0.0), hsl(var(--b2) / 0.3));
+}
+
+section#projects {
+  background-image:
+    radial-gradient(900px 450px at 0% 50%, hsl(var(--s) / 0.10), transparent 55%),
+    radial-gradient(700px 350px at 100% 30%, hsl(var(--p) / 0.08), transparent 60%);
+}
+
+section#competences {
+  background-image:
+    radial-gradient(700px 350px at 10% 90%, hsl(var(--a) / 0.12), transparent 60%),
+    linear-gradient(180deg, hsl(var(--b2) / 0.0), hsl(var(--b2) / 0.25));
+}
+
+section#formation {
+  background-image:
+    radial-gradient(800px 400px at 90% 90%, hsl(var(--p) / 0.10), transparent 60%),
+    radial-gradient(700px 350px at 0% 0%, hsl(var(--s) / 0.08), transparent 60%);
+}
+
+section#experience {
+  background-image:
+    radial-gradient(900px 450px at 100% 80%, hsl(var(--a) / 0.12), transparent 60%),
+    linear-gradient(180deg, hsl(var(--b2) / 0.0), hsl(var(--b2) / 0.2));
+}
+
+section#interets {
+  background-image:
+    radial-gradient(700px 350px at 15% 20%, hsl(var(--p) / 0.10), transparent 60%),
+    radial-gradient(600px 300px at 85% 0%, hsl(var(--s) / 0.08), transparent 60%);
+}
+
+/* Extra decorative: faint dot grid overlay for sections (very subtle) */
+section#technologies::after,
+section#projects::after,
+section#competences::after,
+section#formation::after,
+section#experience::after,
+section#interets::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(hsl(var(--bc) / 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(180deg, transparent, black 20%, black 80%, transparent);
+}
+
+
+/* Hero background */
+section#home {
+  position: relative;
+  background-image:
+    radial-gradient(900px 500px at 80% 10%, hsl(var(--p) / 0.15), transparent 60%),
+    radial-gradient(700px 350px at 0% 80%, hsl(var(--a) / 0.12), transparent 60%);
+}
+section#home::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(hsl(var(--bc) / 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(180deg, transparent, black 20%, black 80%, transparent);
+}

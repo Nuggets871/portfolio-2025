@@ -1,0 +1,20 @@
+# Dependencies
+/node_modules
+
+# Build output
+/dist
+/out-tsc
+
+# Angular cache
+/.angular
+
+# IDE/editor
+/.idea
+/.vscode
+
+# Package manager lockfiles
+bun.lockb
+
+# OS artifacts
+.DS_Store
+Thumbs.db
