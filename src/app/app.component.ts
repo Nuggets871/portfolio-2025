@@ -23,263 +23,283 @@ interface TechCategory { name: string; icon: string; items: TechItem[]; }
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="min-h-screen bg-base-200">
-      <!-- Global decorative layers -->
-      <div class="site-decor pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
-        <div class="stars-layer"></div>
-        <div class="constellations-layer"></div>
-      </div>
-      <!-- Navbar -->
-      <div class="navbar sticky top-0 z-50 bg-base-100/80 backdrop-blur border-b border-base-300">
-        <div class="flex-1">
-          <a href="#home" class="btn btn-ghost text-xl">Portfolio</a>
-        </div>
-        <div class="flex-none gap-2">
-          <!-- Desktop anchors -->
-          <ul class="menu menu-horizontal px-1 hidden lg:flex">
-            <li><a href="#technologies">Technologies</a></li>
-            <li><a href="#projects">Projets</a></li>
-            <li><a href="#competences">Compétences BUT</a></li>
-            <li><a href="#formation">Formation</a></li>
-            <li><a href="#experience">Parcours</a></li>
-            <li><a href="#interets">Centres d'intérêt</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
-
-          <!-- Theme family + day/night -->
-          <div class="flex items-center gap-2">
-            <select class="select select-sm select-bordered" [value]="currentFamily" (change)="changeTheme($event)">
-              <option *ngFor="let t of themeFamilies" [value]="t">{{t}}</option>
-            </select>
-            <button class="btn btn-ghost btn-sm" (click)="toggleDarkMode()" [attr.aria-label]="isDark ? 'Activer le mode jour' : 'Activer le mode nuit'">
-              <span *ngIf="!isDark">🌙</span>
-              <span *ngIf="isDark">☀️</span>
-            </button>
+      <div class="min-h-screen bg-base-200">
+          <!-- Global decorative layers -->
+          <div class="site-decor pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
+              <div class="stars-layer"></div>
+              <div class="constellations-layer"></div>
           </div>
-
-          <a class="btn btn-primary btn-sm" href="assets/cv.pdf" download>CV</a>
-
-          <!-- Mobile menu -->
-          <div class="dropdown dropdown-end lg:hidden">
-            <div tabindex="0" role="button" class="btn btn-ghost">Menu</div>
-            <ul tabindex="0" class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-              <li><a href="#technologies">Technologies</a></li>
-              <li><a href="#projects">Projets</a></li>
-              <li><a href="#competences">Compétences BUT</a></li>
-              <li><a href="#formation">Formation</a></li>
-              <li><a href="#experience">Parcours</a></li>
-              <li><a href="#interets">Centres d'intérêt</a></li>
-              <li><a href="#contact">Contact</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- Hero -->
-      <section id="home" class="hero min-h-screen scroll-mt-24 relative overflow-hidden">
-        <!-- Decorative GSAP blobs -->
-        <div class="pointer-events-none absolute inset-0 -z-10">
-          <div class="blob blob-1 absolute w-80 h-80 bg-gradient-to-br from-primary/30 to-secondary/30 blur-3xl rounded-full -top-16 -left-10"></div>
-          <div class="blob blob-2 absolute w-96 h-96 bg-gradient-to-br from-accent/30 to-secondary/20 blur-3xl rounded-full -bottom-24 -right-16"></div>
-        </div>
-        <div class="hero-content flex-col lg:flex-row-reverse gap-8 container mx-auto px-4">
-          <img src="https://images.unsplash.com/photo-1544006659-f0b21884ce1d?q=80&w=800&auto=format&fit=crop" alt="profile" class="hero-img max-w-sm rounded-2xl shadow-2xl gsap-reveal" />
-          <div>
-            <h1 class="hero-title text-5xl md:text-6xl font-black leading-tight">Christopher <span class="text-primary">Bondier</span></h1>
-            <p class="hero-sub py-6 text-lg opacity-80 max-w-prose">
-              Alternant en développement full-stack. Actuellement en troisième année de BUT Informatique à l'IUT Lyon 1 (La Doua).
-            </p>
-            <div class="flex flex-wrap gap-3">
-              <a class="btn btn-secondary hero-cta magnetic" href="#projects">Voir mes projets</a>
-              <a class="btn btn-outline hero-cta magnetic" href="assets/cv.pdf" download>Télécharger mon CV</a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Technologies -->
-      <section id="technologies" class="container mx-auto px-4 py-16 scroll-mt-24">
-        <h2 class="text-3xl md:text-4xl font-bold mb-6">Technologies</h2>
-        <p class="opacity-70 mb-6">Un aperçu structuré de mes technologies par catégorie.</p>
-        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <div *ngFor="let cat of techCategories; trackBy: trackByCategory" class="card bg-base-100 shadow">
-            <div class="card-body">
-              <div class="flex items-center gap-3 mb-2">
-                <div class="text-2xl">{{cat.icon}}</div>
-                <h3 class="card-title text-xl">{{cat.name}}</h3>
+          <!-- Navbar -->
+          <div class="navbar sticky top-0 z-50 bg-base-100/80 backdrop-blur border-b border-base-300">
+              <div class="flex-1">
+                  <a href="#home" class="btn btn-ghost text-xl">Portfolio</a>
               </div>
-              <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-                <div *ngFor="let t of cat.items; trackBy: trackByTech" class="rounded-xl border border-base-300/60 bg-base-100/40 backdrop-blur p-3 text-center">
-                  <img *ngIf="t.img" [src]="t.img" [alt]="t.name + ' logo'" class="w-10 h-10 mx-auto mb-2" loading="lazy" referrerpolicy="no-referrer" />
-                  <div *ngIf="!t.img" class="text-3xl mb-2">{{t.icon}}</div>
-                  <div class="text-xs opacity-80">{{t.name}}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+              <div class="flex-none gap-2">
+                  <!-- Desktop anchors -->
+                  <ul class="menu menu-horizontal px-1 hidden lg:flex">
+                      <li><a href="#technologies">Technologies</a></li>
+                      <li><a href="#projects">Projets</a></li>
+                      <li><a href="#competences">Compétences BUT</a></li>
+                      <li><a href="#formation">Formation</a></li>
+                      <li><a href="#experience">Parcours</a></li>
+                      <li><a href="#interets">Centres d'intérêt</a></li>
+                      <li><a href="#contact">Contact</a></li>
+                  </ul>
 
-      <!-- Projects -->
-      <section id="projects" class="container mx-auto px-4 py-16 scroll-mt-24">
-        <div class="flex items-end justify-between mb-6">
-          <h2 class="text-3xl md:text-4xl font-bold gsap-reveal">Projets</h2>
-          <a href="#contact" class="link link-primary">Me contacter</a>
-        </div>
-        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <div *ngFor="let p of projects; trackBy: trackByTitle" class="card bg-base-100 shadow-xl gsap-card">
-            <figure><img [src]="p.image" [alt]="p.title" class="h-48 w-full object-cover" /></figure>
-            <div class="card-body">
-              <h3 class="card-title">{{p.title}}</h3>
-              <p class="opacity-80">{{p.description}}</p>
-              <div class="flex flex-wrap gap-2 mt-2">
-                <span *ngFor="let tag of p.skills" class="badge badge-outline">{{tag}}</span>
-              </div>
-              <div class="card-actions justify-end mt-4">
-                <button class="btn btn-primary btn-sm" (click)="openProject(p)">Plus d'infos</button>
-                <a *ngIf="p.url" class="btn btn-ghost btn-sm" [href]="p.url" target="_blank" rel="noopener">Demo</a>
-                <a *ngIf="p.repo" class="btn btn-ghost btn-sm" [href]="p.repo" target="_blank" rel="noopener">Code</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Project Modal -->
-        <dialog #projectModal class="modal">
-          <div class="modal-box max-w-3xl">
-            <h3 class="font-bold text-lg">{{selectedProject?.title}}</h3>
-            <p class="py-2 opacity-80">{{selectedProject?.description}}</p>
-            <div class="flex flex-wrap gap-2 mb-4">
-              <span *ngFor="let tag of selectedProject?.skills ?? []" class="badge badge-outline">{{tag}}</span>
-            </div>
-            <div>
-              <h4 class="font-semibold mb-2">Compétences entraînées par ce projet</h4>
-              <div class="flex flex-wrap gap-2">
-                <span *ngFor="let item of projectTrainedCompetences(); trackBy: trackByKey" class="badge" [ngClass]="item.badgeClass">{{item.key}}</span>
-              </div>
-            </div>
-            <div class="modal-action">
-              <form method="dialog">
-                <button class="btn">Fermer</button>
-              </form>
-            </div>
-          </div>
-          <form method="dialog" class="modal-backdrop"><button>close</button></form>
-        </dialog>
-      </section>
-
-      <!-- Compétences BUT (détails cliquables, code couleur) -->
-      <section id="competences" class="container mx-auto px-4 py-16 scroll-mt-24">
-        <h2 class="text-3xl md:text-4xl font-bold mb-6">Compétences BUT Informatique</h2>
-        <div class="space-y-4">
-          <div *ngFor="let c of competencesData; trackBy: trackByKey" class="collapse collapse-arrow bg-base-100 border border-base-300/60">
-            <input type="checkbox" />
-            <div class="collapse-title flex items-center justify-between gap-4">
-              <div class="flex items-center gap-3">
-                <span class="inline-block w-2 h-6 rounded" [ngClass]="c.colorBar"></span>
-                <span class="font-medium">{{c.key}}</span>
-              </div>
-              <span class="badge" [ngClass]="c.badgeClass">Niveau {{c.level}}</span>
-            </div>
-            <div class="collapse-content">
-              <p class="opacity-80 mb-3">{{c.justification}}</p>
-              <h4 class="font-semibold mb-1">Situations professionnelles</h4>
-              <ul class="list-disc ms-5 mb-3">
-                <li *ngFor="let s of c.situations">{{s}}</li>
-              </ul>
-              <h4 class="font-semibold mb-1">Description</h4>
-              <p class="opacity-80">{{c.description}}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Formation -->
-      <section id="formation" class="container mx-auto px-4 py-16 scroll-mt-24">
-        <h2 class="text-3xl md:text-4xl font-bold mb-6 gsap-reveal">Formation</h2>
-        <ul class="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical">
-          <li *ngFor="let f of formations; let i = index; trackBy: trackByTitle">
-            <div class="timeline-middle">
-              <div class="avatar">
-                <div class="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden">
-                  <img [src]="f.img || 'https://images.unsplash.com/photo-1521310192545-4ac7951413f0?w=100&auto=format&fit=crop'" [alt]="f.org + ' logo'" />
-                </div>
-              </div>
-            </div>
-            <div [class]="'timeline-' + (i % 2 === 0 ? 'start md:text-end' : 'end')">
-              <div class="card bg-base-100 shadow">
-                <div class="card-body">
-                  <time class="font-mono italic">{{f.period}}</time>
-                  <div class="text-lg font-bold">{{f.title}}</div>
-                  <div class="opacity-80">{{f.org}}</div>
-                  <div class="opacity-70">{{f.desc}}</div>
-                  <div class="mt-2 flex flex-wrap gap-2" *ngIf="f.tags?.length">
-                    <span class="badge badge-outline" *ngFor="let tag of f.tags">{{tag}}</span>
+                  <!-- Theme family + day/night -->
+                  <div class="flex items-center gap-2">
+                      <select class="select select-sm select-bordered" [value]="currentFamily"
+                              (change)="changeTheme($event)">
+                          <option *ngFor="let t of themeFamilies" [value]="t">{{ t }}</option>
+                      </select>
+                      <button class="btn btn-ghost btn-sm" (click)="toggleDarkMode()"
+                              [attr.aria-label]="isDark ? 'Activer le mode jour' : 'Activer le mode nuit'">
+                          <span *ngIf="!isDark">🌙</span>
+                          <span *ngIf="isDark">☀️</span>
+                      </button>
                   </div>
-                </div>
-              </div>
-            </div>
-            <hr />
-          </li>
-        </ul>
-      </section>
 
-      <!-- Experience -->
-      <section id="experience" class="container mx-auto px-4 py-16 scroll-mt-24">
-        <h2 class="text-3xl md:text-4xl font-bold mb-6 gsap-reveal">Parcours professionnel</h2>
-        <ul class="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical">
-          <li *ngFor="let e of experiences; let i = index; trackBy: trackByTitle">
-            <div class="timeline-middle">⚡</div>
-            <div [class]="'timeline-' + (i % 2 === 0 ? 'start md:text-end' : 'end')">
-              <time class="font-mono italic">{{e.period}}</time>
-              <div class="text-lg font-bold">{{e.title}} — {{e.org}}</div>
-              <div class="opacity-80">{{e.desc}}</div>
-            </div>
-            <hr />
-          </li>
-        </ul>
-      </section>
+                  <a class="btn btn-primary btn-sm" href="assets/cv.pdf" download>CV</a>
 
-      <!-- Interests -->
-      <section id="interets" class="container mx-auto px-4 py-16 scroll-mt-24">
-        <h2 class="text-3xl md:text-4xl font-bold mb-6 gsap-reveal">Centres d'intérêt</h2>
-        <div class="flex flex-wrap gap-3">
-          <div *ngFor="let i of interets; trackBy: trackByName" class="badge badge-lg gsap-chip">{{i}}</div>
-        </div>
-      </section>
-
-      <!-- Contact -->
-      <footer id="contact" class="bg-base-100 border-t border-base-300">
-        <div class="container mx-auto px-4 py-12">
-          <h2 class="text-3xl md:text-4xl font-bold mb-6">Contact</h2>
-          <div class="grid gap-6 md:grid-cols-2">
-            <div class="card bg-base-200">
-              <div class="card-body">
-                <h3 class="card-title">Coordonnées</h3>
-                <ul class="space-y-2">
-                  <li>📧 Email: <a class="link link-primary" href="mailto:christopherbondier@gmail.com">christopherbondier&#64;gmail.com</a></li>
-                  <li>📱 Téléphone: <a class="link" href="tel:+33615925832">06 15 92 58 32</a></li>
-                  <li>🌐 Site: <a class="link" href="https://christopher-bondier.fr" target="_blank" rel="noopener">christopher-bondier.fr</a></li>
-                  <li>📍 Localisations: Villeurbanne (69100) — Lyon, Oyonnax</li>
-                  <li>🗓️ Né le 11/10/2004</li>
-                </ul>
+                  <!-- Mobile menu -->
+                  <div class="dropdown dropdown-end lg:hidden">
+                      <div tabindex="0" role="button" class="btn btn-ghost">Menu</div>
+                      <ul tabindex="0" class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                          <li><a href="#technologies">Technologies</a></li>
+                          <li><a href="#projects">Projets</a></li>
+                          <li><a href="#competences">Compétences BUT</a></li>
+                          <li><a href="#formation">Formation</a></li>
+                          <li><a href="#experience">Parcours</a></li>
+                          <li><a href="#interets">Centres d'intérêt</a></li>
+                          <li><a href="#contact">Contact</a></li>
+                      </ul>
+                  </div>
               </div>
-            </div>
-            <div class="card bg-base-200">
-              <div class="card-body">
-                <h3 class="card-title">Réseaux</h3>
-                <div class="flex flex-wrap gap-3">
-                  <a class="btn btn-outline btn-sm" href="https://www.linkedin.com" target="_blank" rel="noopener">LinkedIn</a>
-                  <a class="btn btn-outline btn-sm" href="https://github.com" target="_blank" rel="noopener">GitHub</a>
-                  <a class="btn btn-outline btn-sm" href="#home">Retour en haut</a>
-                </div>
-              </div>
-            </div>
           </div>
-          <div class="text-center opacity-70 mt-8">© 2025 Christopher Bondier — Tous droits réservés.</div>
-        </div>
-      </footer>
-    </div>
+
+          <!-- Hero -->
+          <section id="home" class="hero min-h-screen scroll-mt-24 relative overflow-hidden">
+              <!-- Decorative GSAP blobs -->
+              <div class="pointer-events-none absolute inset-0 -z-10">
+                  <div class="blob blob-1 absolute w-80 h-80 bg-gradient-to-br from-primary/30 to-secondary/30 blur-3xl rounded-full -top-16 -left-10"></div>
+                  <div class="blob blob-2 absolute w-96 h-96 bg-gradient-to-br from-accent/30 to-secondary/20 blur-3xl rounded-full -bottom-24 -right-16"></div>
+              </div>
+              <div class="hero-content flex-col lg:flex-row-reverse gap-8 container mx-auto px-4">
+                  <img src="assets/img/profile.webp" alt="profile"
+                       class="hero-img max-w-sm rounded-2xl shadow-2xl gsap-reveal"/>
+                  <div>
+                      <h1 class="hero-title text-5xl md:text-6xl font-black leading-tight">Christopher <span
+                              class="text-primary">Bondier</span></h1>
+                      <p class="hero-sub py-6 text-lg opacity-80 max-w-prose">
+                          Alternant en développement full-stack. Actuellement en troisième année de BUT Informatique à
+                          l'IUT Lyon 1 (La Doua).
+                      </p>
+                      <div class="flex flex-wrap gap-3">
+                          <a class="btn btn-secondary hero-cta magnetic" href="#projects">Voir mes projets</a>
+                          <a class="btn btn-outline hero-cta magnetic" href="assets/cv.pdf" download>Télécharger mon
+                              CV</a>
+                      </div>
+                  </div>
+              </div>
+          </section>
+
+          <!-- Technologies -->
+          <section id="technologies" class="container mx-auto px-4 py-16 scroll-mt-24">
+              <h2 class="text-3xl md:text-4xl font-bold mb-6">Technologies</h2>
+              <p class="opacity-70 mb-6">Un aperçu structuré de mes technologies par catégorie.</p>
+              <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  <div *ngFor="let cat of techCategories; trackBy: trackByCategory" class="card bg-base-100 shadow">
+                      <div class="card-body">
+                          <div class="flex items-center gap-3 mb-2">
+                              <div class="text-2xl">{{ cat.icon }}</div>
+                              <h3 class="card-title text-xl">{{ cat.name }}</h3>
+                          </div>
+                          <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+                              <div *ngFor="let t of cat.items; trackBy: trackByTech"
+                                   class="rounded-xl border border-base-300/60 bg-base-100/40 backdrop-blur p-3 text-center">
+                                  <img *ngIf="t.img" [src]="t.img" [alt]="t.name + ' logo'"
+                                       class="w-10 h-10 mx-auto mb-2" loading="lazy" referrerpolicy="no-referrer"/>
+                                  <div *ngIf="!t.img" class="text-3xl mb-2">{{ t.icon }}</div>
+                                  <div class="text-xs opacity-80">{{ t.name }}</div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </section>
+
+          <!-- Projects -->
+          <section id="projects" class="container mx-auto px-4 py-16 scroll-mt-24">
+              <div class="flex items-end justify-between mb-6">
+                  <h2 class="text-3xl md:text-4xl font-bold gsap-reveal">Projets</h2>
+                  <a href="#contact" class="link link-primary">Me contacter</a>
+              </div>
+              <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  <div *ngFor="let p of projects; trackBy: trackByTitle" class="card bg-base-100 shadow-xl gsap-card">
+                      <figure><img [src]="p.image" [alt]="p.title" class="h-48 w-full object-cover"/></figure>
+                      <div class="card-body">
+                          <h3 class="card-title">{{ p.title }}</h3>
+                          <p class="opacity-80">{{ p.description }}</p>
+                          <div class="flex flex-wrap gap-2 mt-2">
+                              <span *ngFor="let tag of p.skills" class="badge badge-outline">{{ tag }}</span>
+                          </div>
+                          <div class="card-actions justify-end mt-4">
+                              <button class="btn btn-primary btn-sm" (click)="openProject(p)">Plus d'infos</button>
+                              <a *ngIf="p.url" class="btn btn-ghost btn-sm" [href]="p.url" target="_blank"
+                                 rel="noopener">Demo</a>
+                              <a *ngIf="p.repo" class="btn btn-ghost btn-sm" [href]="p.repo" target="_blank"
+                                 rel="noopener">Code</a>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <!-- Project Modal -->
+              <dialog #projectModal class="modal">
+                  <div class="modal-box max-w-3xl">
+                      <h3 class="font-bold text-lg">{{ selectedProject?.title }}</h3>
+                      <p class="py-2 opacity-80">{{ selectedProject?.description }}</p>
+                      <div class="flex flex-wrap gap-2 mb-4">
+                          <span *ngFor="let tag of selectedProject?.skills ?? []"
+                                class="badge badge-outline">{{ tag }}</span>
+                      </div>
+                      <div>
+                          <h4 class="font-semibold mb-2">Compétences entraînées par ce projet</h4>
+                          <div class="flex flex-wrap gap-2">
+                              <span *ngFor="let item of projectTrainedCompetences(); trackBy: trackByKey" class="badge"
+                                    [ngClass]="item.badgeClass">{{ item.key }}</span>
+                          </div>
+                      </div>
+                      <div class="modal-action">
+                          <form method="dialog">
+                              <button class="btn">Fermer</button>
+                          </form>
+                      </div>
+                  </div>
+                  <form method="dialog" class="modal-backdrop">
+                      <button>close</button>
+                  </form>
+              </dialog>
+          </section>
+
+          <!-- Compétences BUT (détails cliquables, code couleur) -->
+          <section id="competences" class="container mx-auto px-4 py-16 scroll-mt-24">
+              <h2 class="text-3xl md:text-4xl font-bold mb-6">Compétences BUT Informatique</h2>
+              <div class="space-y-4">
+                  <div *ngFor="let c of competencesData; trackBy: trackByKey"
+                       class="collapse collapse-arrow bg-base-100 border border-base-300/60">
+                      <input type="checkbox"/>
+                      <div class="collapse-title flex items-center justify-between gap-4">
+                          <div class="flex items-center gap-3">
+                              <span class="inline-block w-2 h-6 rounded" [ngClass]="c.colorBar"></span>
+                              <span class="font-medium">{{ c.key }}</span>
+                          </div>
+                          <span class="badge" [ngClass]="c.badgeClass">Niveau {{ c.level }}</span>
+                      </div>
+                      <div class="collapse-content">
+                          <p class="opacity-80 mb-3">{{ c.justification }}</p>
+                          <h4 class="font-semibold mb-1">Situations professionnelles</h4>
+                          <ul class="list-disc ms-5 mb-3">
+                              <li *ngFor="let s of c.situations">{{ s }}</li>
+                          </ul>
+                          <h4 class="font-semibold mb-1">Description</h4>
+                          <p class="opacity-80">{{ c.description }}</p>
+                      </div>
+                  </div>
+              </div>
+          </section>
+
+          <!-- Formation -->
+          <section id="formation" class="container mx-auto px-4 py-16 scroll-mt-24">
+              <h2 class="text-3xl md:text-4xl font-bold mb-6 gsap-reveal">Formation</h2>
+              <ul class="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical">
+                  <li *ngFor="let f of formations; let i = index; trackBy: trackByTitle">
+                      <div class="timeline-middle">
+                          <div class="avatar">
+                              <div class="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden">
+                                  <img [src]="f.img || 'https://images.unsplash.com/photo-1521310192545-4ac7951413f0?w=100&auto=format&fit=crop'"
+                                       [alt]="f.org + ' logo'"/>
+                              </div>
+                          </div>
+                      </div>
+                      <div [class]="'timeline-' + (i % 2 === 0 ? 'start md:text-end' : 'end')">
+                          <div class="card bg-base-100 shadow">
+                              <div class="card-body">
+                                  <time class="font-mono italic">{{ f.period }}</time>
+                                  <div class="text-lg font-bold">{{ f.title }}</div>
+                                  <div class="opacity-80">{{ f.org }}</div>
+                                  <div class="opacity-70">{{ f.desc }}</div>
+                                  <div class="mt-2 flex flex-wrap gap-2" *ngIf="f.tags?.length">
+                                      <span class="badge badge-outline" *ngFor="let tag of f.tags">{{ tag }}</span>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      <hr/>
+                  </li>
+              </ul>
+          </section>
+
+          <!-- Experience -->
+          <section id="experience" class="container mx-auto px-4 py-16 scroll-mt-24">
+              <h2 class="text-3xl md:text-4xl font-bold mb-6 gsap-reveal">Parcours professionnel</h2>
+              <ul class="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical">
+                  <li *ngFor="let e of experiences; let i = index; trackBy: trackByTitle">
+                      <div class="timeline-middle">⚡</div>
+                      <div [class]="'timeline-' + (i % 2 === 0 ? 'start md:text-end' : 'end')">
+                          <time class="font-mono italic">{{ e.period }}</time>
+                          <div class="text-lg font-bold">{{ e.title }} — {{ e.org }}</div>
+                          <div class="opacity-80">{{ e.desc }}</div>
+                      </div>
+                      <hr/>
+                  </li>
+              </ul>
+          </section>
+
+          <!-- Interests -->
+          <section id="interets" class="container mx-auto px-4 py-16 scroll-mt-24">
+              <h2 class="text-3xl md:text-4xl font-bold mb-6 gsap-reveal">Centres d'intérêt</h2>
+              <div class="flex flex-wrap gap-3">
+                  <div *ngFor="let i of interets; trackBy: trackByName" class="badge badge-lg gsap-chip">{{ i }}</div>
+              </div>
+          </section>
+
+          <!-- Contact -->
+          <footer id="contact" class="bg-base-100 border-t border-base-300">
+              <div class="container mx-auto px-4 py-12">
+                  <h2 class="text-3xl md:text-4xl font-bold mb-6">Contact</h2>
+                  <div class="grid gap-6 md:grid-cols-2">
+                      <div class="card bg-base-200">
+                          <div class="card-body">
+                              <h3 class="card-title">Coordonnées</h3>
+                              <ul class="space-y-2">
+                                  <li>📧 Email: <a class="link link-primary" href="mailto:christopherbondier@gmail.com">christopherbondier&#64;gmail.com</a>
+                                  </li>
+                                  <li>📱 Téléphone: <a class="link" href="tel:+33615925832">06 15 92 58 32</a></li>
+                                  <li>🌐 Site: <a class="link" href="https://christopher-bondier.fr" target="_blank"
+                                                 rel="noopener">christopher-bondier.fr</a></li>
+                                  <li>📍 Localisations: Villeurbanne (69100) — Lyon, Oyonnax</li>
+                                  <li>🗓️ Né le 11/10/2004</li>
+                              </ul>
+                          </div>
+                      </div>
+                      <div class="card bg-base-200">
+                          <div class="card-body">
+                              <h3 class="card-title">Réseaux</h3>
+                              <div class="flex flex-wrap gap-3">
+                                  <a class="btn btn-outline btn-sm" href="https://www.linkedin.com" target="_blank"
+                                     rel="noopener">LinkedIn</a>
+                                  <a class="btn btn-outline btn-sm" href="https://github.com" target="_blank"
+                                     rel="noopener">GitHub</a>
+                                  <a class="btn btn-outline btn-sm" href="#home">Retour en haut</a>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="text-center opacity-70 mt-8">© 2025 Christopher Bondier — Tous droits réservés.</div>
+              </div>
+          </footer>
+      </div>
   `,
 })
 export class AppComponent implements AfterViewInit {
