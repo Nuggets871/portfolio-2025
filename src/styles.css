@@ -88,3 +88,51 @@ section#home::after {
   background-size: 28px 28px;
   mask-image: linear-gradient(180deg, transparent, black 20%, black 80%, transparent);
 }
+
+/* Decorative site-wide stars and curves */
+.site-decor { position: fixed; inset: 0; z-index: -1; }
+.site-decor .stars-layer,
+.site-decor .constellations-layer { position: absolute; inset: 0; }
+
+.site-decor .stars-layer::before,
+.site-decor .stars-layer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Dense small stars */
+.site-decor .stars-layer::before {
+  background-image: radial-gradient(hsl(var(--bc) / 0.18) 1px, transparent 1px);
+  background-size: 42px 42px;
+  animation: twinkle 7s ease-in-out infinite alternate;
+}
+/* Sparse bigger stars */
+.site-decor .stars-layer::after {
+  background-image: radial-gradient(hsl(var(--bc) / 0.14) 1.5px, transparent 1.5px);
+  background-size: 78px 78px;
+  animation: twinkle 10s ease-in-out infinite alternate-reverse;
+}
+
+/* Soft moving curved glows suggesting constellations */
+.site-decor .constellations-layer {
+  opacity: 0.4;
+  background-image:
+    radial-gradient(60% 60% at 12% 30%, hsl(var(--p) / 0.06), transparent 60%),
+    radial-gradient(50% 50% at 80% 70%, hsl(var(--a) / 0.05), transparent 60%),
+    radial-gradient(70% 40% at 30% 85%, hsl(var(--s) / 0.05), transparent 60%);
+  animation: drift 60s linear infinite;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.35; }
+  50% { opacity: 0.6; }
+  100% { opacity: 0.35; }
+}
+
+@keyframes drift {
+  0% { background-position: 0% 0%, 0% 0%, 0% 0%; }
+  50% { background-position: 5% 3%, -4% 2%, 3% -3%; }
+  100% { background-position: 0% 0%, 0% 0%, 0% 0%; }
+}

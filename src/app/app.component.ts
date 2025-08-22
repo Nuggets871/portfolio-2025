@@ -24,6 +24,11 @@ interface TechCategory { name: string; icon: string; items: TechItem[]; }
   imports: [CommonModule],
   template: `
     <div class="min-h-screen bg-base-200">
+      <!-- Global decorative layers -->
+      <div class="site-decor pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
+        <div class="stars-layer"></div>
+        <div class="constellations-layer"></div>
+      </div>
       <!-- Navbar -->
       <div class="navbar sticky top-0 z-50 bg-base-100/80 backdrop-blur border-b border-base-300">
         <div class="flex-1">
@@ -41,10 +46,16 @@ interface TechCategory { name: string; icon: string; items: TechItem[]; }
             <li><a href="#contact">Contact</a></li>
           </ul>
 
-          <!-- Theme select -->
-          <select class="select select-sm select-bordered" [value]="currentTheme" (change)="changeTheme($event)">
-            <option *ngFor="let t of themes" [value]="t">{{t}}</option>
-          </select>
+          <!-- Theme family + day/night -->
+          <div class="flex items-center gap-2">
+            <select class="select select-sm select-bordered" [value]="currentFamily" (change)="changeTheme($event)">
+              <option *ngFor="let t of themeFamilies" [value]="t">{{t}}</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" (click)="toggleDarkMode()" [attr.aria-label]="isDark ? 'Activer le mode jour' : 'Activer le mode nuit'">
+              <span *ngIf="!isDark">🌙</span>
+              <span *ngIf="isDark">☀️</span>
+            </button>
+          </div>
 
           <a class="btn btn-primary btn-sm" href="assets/cv.pdf" download>CV</a>
 
@@ -88,21 +99,21 @@ interface TechCategory { name: string; icon: string; items: TechItem[]; }
 
       <!-- Technologies -->
       <section id="technologies" class="container mx-auto px-4 py-16 scroll-mt-24">
-        <h2 class="text-3xl md:text-4xl font-bold mb-6 gsap-reveal">Technologies</h2>
-        <p class="opacity-70 mb-6 gsap-reveal">Un aperçu structuré de mes technologies par catégorie.</p>
+        <h2 class="text-3xl md:text-4xl font-bold mb-6">Technologies</h2>
+        <p class="opacity-70 mb-6">Un aperçu structuré de mes technologies par catégorie.</p>
         <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <div *ngFor="let cat of techCategories; trackBy: trackByCategory" class="card bg-base-100 shadow gsap-card">
+          <div *ngFor="let cat of techCategories; trackBy: trackByCategory" class="card bg-base-100 shadow">
             <div class="card-body">
               <div class="flex items-center gap-3 mb-2">
                 <div class="text-2xl">{{cat.icon}}</div>
                 <h3 class="card-title text-xl">{{cat.name}}</h3>
               </div>
-              <div class="flex flex-wrap gap-2">
-                <span *ngFor="let t of cat.items; trackBy: trackByTech" class="badge badge-lg badge-outline gsap-chip flex items-center gap-1">
-                  <img *ngIf="t.img" [src]="t.img" [alt]="t.name + ' logo'" class="w-5 h-5" loading="lazy" referrerpolicy="no-referrer" />
-                  <span *ngIf="!t.img" class="text-base">{{t.icon}}</span>
-                  <span>{{t.name}}</span>
-                </span>
+              <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+                <div *ngFor="let t of cat.items; trackBy: trackByTech" class="rounded-xl border border-base-300/60 bg-base-100/40 backdrop-blur p-3 text-center">
+                  <img *ngIf="t.img" [src]="t.img" [alt]="t.name + ' logo'" class="w-10 h-10 mx-auto mb-2" loading="lazy" referrerpolicy="no-referrer" />
+                  <div *ngIf="!t.img" class="text-3xl mb-2">{{t.icon}}</div>
+                  <div class="text-xs opacity-80">{{t.name}}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -142,17 +153,9 @@ interface TechCategory { name: string; icon: string; items: TechItem[]; }
               <span *ngFor="let tag of selectedProject?.skills ?? []" class="badge badge-outline">{{tag}}</span>
             </div>
             <div>
-              <h4 class="font-semibold mb-2">Les 6 compétences du BUT Informatique</h4>
-              <div class="space-y-3 max-h-[40vh] overflow-auto pr-2">
-                <div *ngFor="let c of butCompetences; trackBy: trackByName">
-                  <div class="flex items-center justify-between">
-                    <span class="text-sm">{{c}}</span>
-                    <div class="flex items-center gap-2">
-                      <span class="badge badge-outline">{{ levelLabel(valueForCompetence(c)) }}</span>
-                      <span class="text-xs opacity-70">{{ levelStars(valueForCompetence(c)) }}</span>
-                    </div>
-                  </div>
-                </div>
+              <h4 class="font-semibold mb-2">Compétences entraînées par ce projet</h4>
+              <div class="flex flex-wrap gap-2">
+                <span *ngFor="let item of projectTrainedCompetences(); trackBy: trackByKey" class="badge" [ngClass]="item.badgeClass">{{item.key}}</span>
               </div>
             </div>
             <div class="modal-action">
@@ -165,20 +168,27 @@ interface TechCategory { name: string; icon: string; items: TechItem[]; }
         </dialog>
       </section>
 
-      <!-- Competences BUT (overview) -->
+      <!-- Compétences BUT (détails cliquables, code couleur) -->
       <section id="competences" class="container mx-auto px-4 py-16 scroll-mt-24">
-        <h2 class="text-3xl md:text-4xl font-bold mb-6 gsap-reveal">Compétences BUT Informatique</h2>
-        <div class="grid gap-6 md:grid-cols-2">
-          <div *ngFor="let c of butCompetences; trackBy: trackByName" class="card bg-base-100 shadow gsap-card">
-            <div class="card-body">
-              <div class="flex items-center justify-between">
-                <h3 class="card-title text-base">{{c}}</h3>
-                <span class="badge">Niveau d'expertise</span>
+        <h2 class="text-3xl md:text-4xl font-bold mb-6">Compétences BUT Informatique</h2>
+        <div class="space-y-4">
+          <div *ngFor="let c of competencesData; trackBy: trackByKey" class="collapse collapse-arrow bg-base-100 border border-base-300/60">
+            <input type="checkbox" />
+            <div class="collapse-title flex items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <span class="inline-block w-2 h-6 rounded" [ngClass]="c.colorBar"></span>
+                <span class="font-medium">{{c.key}}</span>
               </div>
-              <div class="flex items-center justify-between">
-                <span class="badge badge-outline">{{ levelLabel(competenceOverview[c]) }}</span>
-                <span class="text-sm opacity-70">{{ levelStars(competenceOverview[c]) }}</span>
-              </div>
+              <span class="badge" [ngClass]="c.badgeClass">Niveau {{c.level}}</span>
+            </div>
+            <div class="collapse-content">
+              <p class="opacity-80 mb-3">{{c.justification}}</p>
+              <h4 class="font-semibold mb-1">Situations professionnelles</h4>
+              <ul class="list-disc ms-5 mb-3">
+                <li *ngFor="let s of c.situations">{{s}}</li>
+              </ul>
+              <h4 class="font-semibold mb-1">Description</h4>
+              <p class="opacity-80">{{c.description}}</p>
             </div>
           </div>
         </div>
@@ -189,12 +199,25 @@ interface TechCategory { name: string; icon: string; items: TechItem[]; }
         <h2 class="text-3xl md:text-4xl font-bold mb-6 gsap-reveal">Formation</h2>
         <ul class="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical">
           <li *ngFor="let f of formations; let i = index; trackBy: trackByTitle">
-            <div class="timeline-middle">🎓</div>
+            <div class="timeline-middle">
+              <div class="avatar">
+                <div class="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden">
+                  <img [src]="f.img || 'https://images.unsplash.com/photo-1521310192545-4ac7951413f0?w=100&auto=format&fit=crop'" [alt]="f.org + ' logo'" />
+                </div>
+              </div>
+            </div>
             <div [class]="'timeline-' + (i % 2 === 0 ? 'start md:text-end' : 'end')">
-              <time class="font-mono italic">{{f.period}}</time>
-              <div class="text-lg font-bold">{{f.title}}</div>
-              <div class="opacity-80">{{f.org}}</div>
-              <div class="opacity-70">{{f.desc}}</div>
+              <div class="card bg-base-100 shadow">
+                <div class="card-body">
+                  <time class="font-mono italic">{{f.period}}</time>
+                  <div class="text-lg font-bold">{{f.title}}</div>
+                  <div class="opacity-80">{{f.org}}</div>
+                  <div class="opacity-70">{{f.desc}}</div>
+                  <div class="mt-2 flex flex-wrap gap-2" *ngIf="f.tags?.length">
+                    <span class="badge badge-outline" *ngFor="let tag of f.tags">{{tag}}</span>
+                  </div>
+                </div>
+              </div>
             </div>
             <hr />
           </li>
@@ -262,8 +285,15 @@ interface TechCategory { name: string; icon: string; items: TechItem[]; }
 export class AppComponent implements AfterViewInit {
   @ViewChild('projectModal') projectModal!: ElementRef<HTMLDialogElement>;
 
-  themes: string[] = ['cupcake','emerald','dracula','lofi','forest'];
-  currentTheme = 'cupcake';
+  // Theme pairing (day/night)
+  themeFamilies: string[] = ['cupcake','emerald','lofi'];
+  currentFamily: string = 'cupcake';
+  isDark: boolean = false;
+  themePairs: Record<string, { light: string; dark: string }> = {
+    cupcake: { light: 'cupcake', dark: 'dracula' },
+    emerald: { light: 'emerald', dark: 'forest' },
+    lofi: { light: 'lofi', dark: 'black' },
+  };
 
   skills = [
     // Programmation
@@ -287,12 +317,13 @@ export class AppComponent implements AfterViewInit {
       name: 'Dév Web',
       icon: '🌐',
       items: [
-        { name: 'HTML', icon: '🔶', img: 'https://cdn.simpleicons.org/html5/E34F26' },
-        { name: 'CSS', icon: '🎨', img: 'https://cdn.simpleicons.org/css3/1572B6' },
         { name: 'JavaScript', icon: '⚡', img: 'https://cdn.simpleicons.org/javascript/F7DF1E' },
+        { name: 'TypeScript', icon: '🧩', img: 'https://cdn.simpleicons.org/typescript/3178C6' },
         { name: 'Angular', icon: '🅰️', img: 'https://cdn.simpleicons.org/angular/DD0031' },
         { name: 'ReactJS', icon: '⚛️', img: 'https://cdn.simpleicons.org/react/61DAFB' },
         { name: 'VueJS', icon: '🖖', img: 'https://cdn.simpleicons.org/vuedotjs/4FC08D' },
+        { name: 'Node.js', icon: '🟢', img: 'https://cdn.simpleicons.org/nodedotjs/339933' },
+        { name: 'ExpressJS', icon: '🚏', img: 'https://cdn.simpleicons.org/express/000000' },
         { name: 'PHP', icon: '🐘', img: 'https://cdn.simpleicons.org/php/777BB4' },
         { name: 'Symfony', icon: '🎼', img: 'https://cdn.simpleicons.org/symfony/000000' },
       ],
@@ -319,9 +350,11 @@ export class AppComponent implements AfterViewInit {
       name: 'Bases de données',
       icon: '🗄️',
       items: [
-        { name: 'SQL', icon: '🧮' },
-        { name: 'PL/SQL', icon: '📜', img: 'https://cdn.simpleicons.org/oracle/F80000' },
+        { name: 'Oracle', icon: '📜', img: 'https://cdn.simpleicons.org/oracle/F80000' },
+        { name: 'PostgreSQL', icon: '🐘', img: 'https://cdn.simpleicons.org/postgresql/4169E1' },
+        { name: 'MySQL', icon: '🐬', img: 'https://cdn.simpleicons.org/mysql/4479A1' },
         { name: 'MongoDB', icon: '🍃', img: 'https://cdn.simpleicons.org/mongodb/47A248' },
+        { name: 'Neo4j', icon: '🕸️', img: 'https://cdn.simpleicons.org/neo4j/008CC1' },
       ],
     },
     {
@@ -330,6 +363,8 @@ export class AppComponent implements AfterViewInit {
       items: [
         { name: 'Windows', icon: '🪟', img: 'https://cdn.simpleicons.org/windows/0078D6' },
         { name: 'Linux', icon: '🐧', img: 'https://cdn.simpleicons.org/linux/FCC624' },
+        { name: 'Docker', icon: '🐳', img: 'https://cdn.simpleicons.org/docker/2496ED' },
+        { name: 'Kubernetes', icon: '☸️', img: 'https://cdn.simpleicons.org/kubernetes/326CE5' },
       ],
     },
     {
@@ -338,6 +373,7 @@ export class AppComponent implements AfterViewInit {
       items: [
         { name: 'VS Code', icon: '🧩', img: 'https://cdn.simpleicons.org/visualstudiocode/007ACC' },
         { name: 'Android Studio', icon: '🤖', img: 'https://cdn.simpleicons.org/androidstudio/3DDC84' },
+        { name: 'JetBrains', icon: '💡', img: 'https://cdn.simpleicons.org/jetbrains/000000' },
         { name: 'Code::Blocks', icon: '📦' },
         { name: 'VMware', icon: '🖥️', img: 'https://cdn.simpleicons.org/vmware/607078' },
         { name: 'PowerAMC', icon: '📐' },
@@ -348,12 +384,12 @@ export class AppComponent implements AfterViewInit {
   ];
 
   readonly butCompetences = [
-    'Réaliser un développement d’application',
-    'Optimiser des applications',
-    'Administrer des systèmes informatiques',
-    'Gérer des données de l’information',
-    'Conduire un projet',
-    'Collaborer au sein d’une équipe',
+    'Réaliser',
+    'Optimiser',
+    'Administrer',
+    'Gérer',
+    'Conduire',
+    'Collaborer',
   ];
 
   competenceOverview: Record<string, number> = {
@@ -370,13 +406,17 @@ export class AppComponent implements AfterViewInit {
       period: 'Septembre 2022 — Juillet 2025',
       title: 'BUT Informatique (Diplôme en trois ans)',
       org: 'IUT Claude Bernard, Université Lyon 1 — Villeurbanne',
-      desc: 'Troisième année en cours'
+      desc: 'Troisième année en cours',
+      img: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=128&auto=format&fit=crop',
+      tags: ['BUT Informatique','IUT Lyon 1','Alternance']
     },
     {
       period: 'Septembre 2019 — Juin 2022',
       title: 'Baccalauréat Général (Mention Bien)',
       org: 'Lycée Arbez Carme — Bellignat',
-      desc: 'Options: Mathématiques, NSI'
+      desc: 'Options: Mathématiques, NSI',
+      img: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=128&auto=format&fit=crop',
+      tags: ['Mention Bien','Mathématiques','NSI']
     }
   ];
 
@@ -512,15 +552,127 @@ export class AppComponent implements AfterViewInit {
 
   interets = ['🎵 Musique', '🏃 Sport', '📸 Photo', '🧑‍🍳 Cuisine', '🧩 Jeux de logique', '✈️ Voyage'];
 
+  // Compétences BUT (données + niveaux + couleurs)
+  competencesData = [
+    {
+      key: 'Réaliser',
+      colorBar: 'bg-red-500',
+      badgeClass: 'badge-outline text-red-500 border-red-500',
+      level: 3,
+      situations: [
+        "Élaborer une application informatique",
+        "Faire évoluer une application informatique",
+        "Maintenir en conditions opérationnelles une application informatique",
+      ],
+      description: "Concevoir, développer et maintenir des applications sur divers supports (web, mobile, embarqué, etc.) en appliquant les bonnes pratiques.",
+      justification: "Niveau 3 acquis via la réalisation complète d'applications (ERP IUT, Eduquiz, blog PHP) avec intégration front/back, qualité de code et maintenance.",
+    },
+    {
+      key: 'Optimiser',
+      colorBar: 'bg-orange-500',
+      badgeClass: 'badge-outline text-orange-500 border-orange-500',
+      level: 3,
+      situations: [
+        "Améliorer les performances des programmes dans des contextes contraints",
+        "Limiter l’impact environnemental d’une application informatique",
+        "Mettre en place des applications informatiques adaptées et efficaces",
+      ],
+      description: "Analyser et optimiser les performances des applications et leurs empreintes (temps, mémoire, énergie).",
+      justification: "Niveau 3 confirmé par l'optimisation d'algorithmes (graphes, tris) et d'applications web (requêtes, cache, assets).",
+    },
+    {
+      key: 'Administrer',
+      colorBar: 'bg-yellow-500',
+      badgeClass: 'badge-outline text-yellow-600 border-yellow-500',
+      level: 2,
+      situations: [
+        "Déployer une nouvelle architecture technique",
+        "Améliorer une infrastructure existante",
+        "Sécuriser les applications et les services",
+      ],
+      description: "Mettre en place, configurer et sécuriser des services/systèmes de base en environnement réseau.",
+      justification: "Niveau 2 grâce à des déploiements et configurations simples (stages/alternance) et à la sécurisation basique des services.",
+    },
+    {
+      key: 'Gérer',
+      colorBar: 'bg-green-500',
+      badgeClass: 'badge-outline text-green-600 border-green-500',
+      level: 2,
+      situations: [
+        "Lancer un nouveau projet",
+        "Sécuriser des données",
+        "Exploiter des données pour la prise de décisions",
+      ],
+      description: "Concevoir, manipuler et protéger des données; analyser et restituer pour la décision (BI).",
+      justification: "Niveau 2 attesté par la création de modèles de données (blog, ERP) et des tableaux de bord (Power BI).",
+    },
+    {
+      key: 'Conduire',
+      colorBar: 'bg-blue-700',
+      badgeClass: 'badge-outline text-blue-700 border-blue-700',
+      level: 2,
+      situations: [
+        "Lancer un nouveau projet",
+        "Piloter le maintien d’un projet en condition opérationnelle",
+        "Faire évoluer un système d’information",
+      ],
+      description: "Planifier, suivre et faire évoluer des projets informatiques à l'échelle équipe/produit.",
+      justification: "Niveau 2 grâce au pilotage de lots (ERP à 20), suivi des tickets et amélioration continue en alternance.",
+    },
+    {
+      key: 'Collaborer',
+      colorBar: 'bg-black',
+      badgeClass: 'badge-outline text-black border-black',
+      level: 2,
+      situations: [
+        "Lancer un nouveau projet",
+        "Organiser son travail en relation avec celui de son équipe",
+        "Élaborer, gérer et transmettre de l’information",
+      ],
+      description: "Travailler efficacement en équipe (méthodes, outils, communication).",
+      justification: "Niveau 2 validé par le travail d'équipe (SCRUM, Git) sur ERP/alternance et la communication régulière.",
+    },
+  ];
+
+  // Mapping des libellés complets (projets) -> clés courtes
+  competenceKeyMap: Record<string, string> = {
+    'Réaliser un développement d’application': 'Réaliser',
+    'Optimiser des applications': 'Optimiser',
+    'Administrer des systèmes informatiques': 'Administrer',
+    'Gérer des données de l’information': 'Gérer',
+    'Conduire un projet': 'Conduire',
+    'Collaborer au sein d’une équipe': 'Collaborer',
+  };
+
   selectedProject: Project | null = null;
 
   ngAfterViewInit(): void {
     // Theme initialization (persisted)
-    let saved: string | null = null;
-    try { saved = localStorage.getItem('theme'); } catch {}
-    const initial = saved || document.documentElement.getAttribute('data-theme') || this.currentTheme;
-    this.currentTheme = initial;
-    this.applyTheme(initial);
+    let savedFamily: string | null = null;
+    let savedDark: string | null = null;
+    try {
+      savedFamily = localStorage.getItem('themeFamily');
+      savedDark = localStorage.getItem('isDark');
+    } catch {}
+
+    if (savedFamily) {
+      this.currentFamily = savedFamily;
+      this.isDark = savedDark === '1';
+    } else {
+      const attr = document.documentElement.getAttribute('data-theme') || 'cupcake';
+      // Try to resolve family/isDark from current data-theme
+      let resolved = false;
+      for (const fam of Object.keys(this.themePairs)) {
+        const pair = this.themePairs[fam];
+        if (attr === pair.dark) { this.currentFamily = fam; this.isDark = true; resolved = true; break; }
+        if (attr === pair.light) { this.currentFamily = fam; this.isDark = false; resolved = true; break; }
+      }
+      if (!resolved) {
+        this.currentFamily = 'cupcake';
+        this.isDark = false;
+      }
+    }
+    this.applyCurrentTheme();
 
     // Hero intro animations
     gsap.from('.hero-title', { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out' });
@@ -555,16 +707,6 @@ export class AppComponent implements AfterViewInit {
       });
     });
 
-    // Subtle float for technology icons
-    gsap.to('#technologies .gsap-chip img', {
-      y: -3,
-      repeat: -1,
-      yoyo: true,
-      duration: 2.2,
-      ease: 'sine.inOut',
-      stagger: { each: 0.06, from: 'random' },
-      scrollTrigger: { trigger: '#technologies', start: 'top 85%' }
-    });
 
     // Floating gradient blobs in hero
     gsap.to('.blob-1', { x: 30, y: -20, duration: 8, yoyo: true, repeat: -1, ease: 'sine.inOut' });
@@ -595,8 +737,26 @@ export class AppComponent implements AfterViewInit {
 
   changeTheme(event: Event) {
     const value = (event.target as HTMLSelectElement).value;
-    this.currentTheme = value;
-    this.applyTheme(value);
+    this.currentFamily = value;
+    try { localStorage.setItem('themeFamily', this.currentFamily); } catch {}
+    this.applyCurrentTheme();
+  }
+
+  toggleDarkMode() {
+    this.isDark = !this.isDark;
+    try { localStorage.setItem('isDark', this.isDark ? '1' : '0'); } catch {}
+    this.applyCurrentTheme();
+  }
+
+  private getEffectiveTheme(): string {
+    const pair = this.themePairs[this.currentFamily];
+    if (pair) return this.isDark ? pair.dark : pair.light;
+    return this.currentFamily;
+  }
+
+  private applyCurrentTheme() {
+    const theme = this.getEffectiveTheme();
+    this.applyTheme(theme);
   }
 
   private applyTheme(theme: string) {
@@ -649,6 +809,29 @@ export class AppComponent implements AfterViewInit {
     return full + empty;
   }
 
+  projectTrainedCompetences(): { key: string; badgeClass: string }[] {
+    const p = this.selectedProject;
+    if (!p || !p.competenceLevels) return [];
+    const items = Object.entries(p.competenceLevels)
+      .filter(([_, v]) => typeof v === 'number' && isFinite(v) && v > 0)
+      .map(([longKey, v]) => ({ longKey, v }))
+      .sort((a, b) => b.v - a.v)
+      .map(({ longKey }) => {
+        const key = this.competenceKeyMap[longKey] || longKey;
+        const conf = this.competencesData.find(x => x.key === key);
+        const badgeClass = conf?.badgeClass || 'badge-outline';
+        return { key, badgeClass };
+      });
+    // dedupe by key while preserving order
+    const seen = new Set<string>();
+    const out: { key: string; badgeClass: string }[] = [];
+    for (const it of items) {
+      if (!seen.has(it.key)) { seen.add(it.key); out.push(it); }
+    }
+    return out;
+  }
+
+  trackByKey = (_: number, item: any) => item?.key ?? item;
   trackByCategory = (_: number, cat: TechCategory) => cat.name;
   trackByTech = (_: number, t: TechItem) => t.name;
   trackByName = (_: number, item: any) => (item && (item.name ?? item));
