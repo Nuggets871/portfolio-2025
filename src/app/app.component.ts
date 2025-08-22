@@ -59,7 +59,7 @@ interface TechCategory { name: string; icon: string; items: TechItem[]; }
                       </button>
                   </div>
 
-                  <a class="btn btn-primary btn-sm" href="assets/cv.pdf" download>CV</a>
+                  <a class="btn btn-primary btn-sm" href="assets/CV.pdf" download>CV</a>
 
                   <!-- Mobile menu -->
                   <div class="dropdown dropdown-end lg:hidden">
@@ -96,7 +96,7 @@ interface TechCategory { name: string; icon: string; items: TechItem[]; }
                       </p>
                       <div class="flex flex-wrap gap-3">
                           <a class="btn btn-secondary hero-cta magnetic" href="#projects">Voir mes projets</a>
-                          <a class="btn btn-outline hero-cta magnetic" href="assets/cv.pdf" download>Télécharger mon
+                          <a class="btn btn-outline hero-cta magnetic" href="assets/CV.pdf" download>Télécharger mon
                               CV</a>
                       </div>
                   </div>
@@ -275,11 +275,10 @@ interface TechCategory { name: string; icon: string; items: TechItem[]; }
                               <ul class="space-y-2">
                                   <li>📧 Email: <a class="link link-primary" href="mailto:christopherbondier@gmail.com">christopherbondier&#64;gmail.com</a>
                                   </li>
-                                  <li>📱 Téléphone: <a class="link" href="tel:+33615925832">06 15 92 58 32</a></li>
-                                  <li>🌐 Site: <a class="link" href="https://christopher-bondier.fr" target="_blank"
+                                  <li>🌐 Site: <a class="link" href="https://portfolio-2025-seven-gamma.vercel.app/#home" target="_blank"
                                                  rel="noopener">christopher-bondier.fr</a></li>
                                   <li>📍 Localisations: Villeurbanne (69100) — Lyon, Oyonnax</li>
-                                  <li>🗓️ Né le 11/10/2004</li>
+                                  <li>🎊 20 ans</li>
                               </ul>
                           </div>
                       </div>
@@ -287,9 +286,9 @@ interface TechCategory { name: string; icon: string; items: TechItem[]; }
                           <div class="card-body">
                               <h3 class="card-title">Réseaux</h3>
                               <div class="flex flex-wrap gap-3">
-                                  <a class="btn btn-outline btn-sm" href="https://www.linkedin.com" target="_blank"
+                                  <a class="btn btn-outline btn-sm" href="https://www.linkedin.com/in/christopher-bondier-15884623a/" target="_blank"
                                      rel="noopener">LinkedIn</a>
-                                  <a class="btn btn-outline btn-sm" href="https://github.com" target="_blank"
+                                  <a class="btn btn-outline btn-sm" href="https://github.com/Nuggets871" target="_blank"
                                      rel="noopener">GitHub</a>
                                   <a class="btn btn-outline btn-sm" href="#home">Retour en haut</a>
                               </div>
