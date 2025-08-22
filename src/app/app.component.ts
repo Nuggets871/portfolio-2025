@@ -86,7 +86,8 @@ interface TechCategory { name: string; icon: string; items: TechItem[]; }
               </div>
               <div class="hero-content flex-col lg:flex-row-reverse gap-8 container mx-auto px-4">
                   <img src="assets/img/profile.webp" alt="profile"
-                       class="hero-img max-w-sm rounded-2xl shadow-2xl gsap-reveal"/>
+                       class="hero-img max-w-sm rounded-2xl shadow-2xl gsap-reveal cursor-pointer"
+                       (click)="onProfileClick()"/>
                   <div>
                       <h1 class="hero-title text-5xl md:text-6xl font-black leading-tight">Christopher <span
                               class="text-primary">Bondier</span></h1>
@@ -173,6 +174,35 @@ interface TechCategory { name: string; icon: string; items: TechItem[]; }
                       <div class="modal-action">
                           <form method="dialog">
                               <button class="btn">Fermer</button>
+                          </form>
+                      </div>
+                  </div>
+                  <form method="dialog" class="modal-backdrop">
+                      <button>close</button>
+                  </form>
+              </dialog>
+              
+              <!-- Love Message Modal (Easter Egg) -->
+              <dialog #loveModal class="modal">
+                  <div class="modal-box max-w-2xl bg-pink-50">
+                      <div class="relative">
+                          <div class="absolute -top-8 -left-8 text-5xl animate-bounce">❤️</div>
+                          <div class="absolute -top-4 -right-4 text-4xl animate-pulse">💖</div>
+                          <div class="absolute -bottom-8 -right-8 text-5xl animate-bounce">💘</div>
+                          <div class="absolute -bottom-4 -left-4 text-4xl animate-pulse">💝</div>
+                      </div>
+                      <h3 class="font-bold text-2xl text-center text-pink-600 mb-4">Message secret pour Clémence</h3>
+                      <div class="py-4 text-center">
+                          <p class="text-xl mb-6 text-pink-700">Clémence, tu es la personne la plus extraordinaire que j'ai jamais rencontrée. 
+                          Chaque jour à tes côtés est une aventure merveilleuse.</p>
+                          <p class="text-2xl font-bold text-pink-800">Je t'aime infiniment ! ❤️</p>
+                          <div class="mt-6 flex justify-center">
+                              <div class="heart-animation">💗</div>
+                          </div>
+                      </div>
+                      <div class="modal-action">
+                          <form method="dialog">
+                              <button class="btn bg-pink-500 text-white hover:bg-pink-600 border-none">Fermer avec amour</button>
                           </form>
                       </div>
                   </div>
@@ -295,7 +325,11 @@ interface TechCategory { name: string; icon: string; items: TechItem[]; }
                           </div>
                       </div>
                   </div>
-                  <div class="text-center opacity-70 mt-8">© 2025 Christopher Bondier — Tous droits réservés.</div>
+                  <div class="text-center opacity-70 mt-8">
+                    © 2025 Christopher Bondier — Tous droits réservés.
+                    <!-- Easter Egg #2: Click the nearly invisible heart here to reveal a secret page -->
+                    <span class="invisible-link" (click)="showSecretPage()">❤️</span>
+                  </div>
               </div>
           </footer>
       </div>
@@ -303,6 +337,16 @@ interface TechCategory { name: string; icon: string; items: TechItem[]; }
 })
 export class AppComponent implements AfterViewInit {
   @ViewChild('projectModal') projectModal!: ElementRef<HTMLDialogElement>;
+  @ViewChild('loveModal') loveModal!: ElementRef<HTMLDialogElement>;
+
+  // Easter egg counter for profile pic clicks
+  // Easter Egg #1: Click the profile picture 7 times to reveal a love message
+  profileClickCount: number = 0;
+  
+  // Easter egg: Konami code sequence
+  // Easter Egg #3: Type "clemence" on your keyboard to reveal a love poem
+  private readonly LOVE_CODE = ['c', 'l', 'e', 'm', 'e', 'n', 'c', 'e'];
+  private keySequence: string[] = [];
 
   // Theme pairing (day/night)
   themeFamilies: string[] = ['cupcake','emerald','lofi'];
@@ -751,6 +795,31 @@ export class AppComponent implements AfterViewInit {
       el.addEventListener('mousemove', move);
       el.addEventListener('mouseleave', reset);
     });
+    
+    // Easter egg: Keyboard sequence listener
+    document.addEventListener('keydown', (e) => {
+      // Convert key to lowercase for case insensitivity
+      const key = e.key.toLowerCase();
+      
+      // Add the key to the sequence
+      this.keySequence.push(key);
+      
+      // Keep only the last N keys (where N is the length of the love code)
+      if (this.keySequence.length > this.LOVE_CODE.length) {
+        this.keySequence.shift();
+      }
+      
+      // Check if the sequence matches the love code
+      const sequenceMatches = this.keySequence.join('') === this.LOVE_CODE.join('');
+      
+      if (sequenceMatches) {
+        // Reset the sequence
+        this.keySequence = [];
+        
+        // Show love message
+        this.showLovePoem();
+      }
+    });
 
   }
 
@@ -855,4 +924,220 @@ export class AppComponent implements AfterViewInit {
   trackByTech = (_: number, t: TechItem) => t.name;
   trackByName = (_: number, item: any) => (item && (item.name ?? item));
   trackByTitle = (_: number, item: any) => item.title ?? item;
+  
+  // Easter egg: Profile click handler
+  onProfileClick(): void {
+    this.profileClickCount++;
+    
+    // Show a little animation on the profile picture when clicked
+    const profileImg = document.querySelector('.hero-img');
+    if (profileImg) {
+      gsap.to(profileImg, {
+        scale: 1.05,
+        duration: 0.2,
+        yoyo: true,
+        repeat: 1,
+        ease: 'power2.out'
+      });
+    }
+    
+    // After 7 clicks, show the love message
+    if (this.profileClickCount === 7) {
+      if (this.loveModal?.nativeElement) {
+        // Reset the counter
+        this.profileClickCount = 0;
+        
+        // Add hearts animation to the page
+        this.showFallingHearts();
+        
+        // Show the modal with a small delay
+        setTimeout(() => {
+          this.loveModal.nativeElement.showModal();
+        }, 600);
+      }
+    }
+  }
+  
+  // Create falling hearts animation
+  showFallingHearts(): void {
+    const container = document.body;
+    const heartCount = 30;
+    
+    for (let i = 0; i < heartCount; i++) {
+      const heart = document.createElement('div');
+      heart.classList.add('falling-heart');
+      heart.innerHTML = ['❤️', '💖', '💕', '💗', '💘', '💝'][Math.floor(Math.random() * 6)];
+      heart.style.left = `${Math.random() * 100}%`;
+      heart.style.animationDuration = `${Math.random() * 3 + 2}s`;
+      heart.style.animationDelay = `${Math.random() * 2}s`;
+      container.appendChild(heart);
+      
+      // Remove the heart after animation completes
+      setTimeout(() => {
+        heart.remove();
+      }, 5000);
+    }
+  }
+  
+  // Easter egg: Love poem when typing "clemence"
+  showLovePoem(): void {
+    // Create a poetry modal with animation
+    const poemContainer = document.createElement('div');
+    poemContainer.style.position = 'fixed';
+    poemContainer.style.top = '0';
+    poemContainer.style.left = '0';
+    poemContainer.style.width = '100%';
+    poemContainer.style.height = '100%';
+    poemContainer.style.backgroundColor = 'rgba(255, 192, 203, 0.95)';
+    poemContainer.style.zIndex = '10000';
+    poemContainer.style.display = 'flex';
+    poemContainer.style.justifyContent = 'center';
+    poemContainer.style.alignItems = 'center';
+    poemContainer.style.animation = 'fadeIn 0.5s ease-in';
+    
+    // Create poem content
+    const poemContent = document.createElement('div');
+    poemContent.style.maxWidth = '600px';
+    poemContent.style.padding = '2rem';
+    poemContent.style.backgroundColor = 'white';
+    poemContent.style.borderRadius = '20px';
+    poemContent.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.1)';
+    poemContent.style.textAlign = 'center';
+    poemContent.style.position = 'relative';
+    
+    // Add hearts around the poem
+    for (let i = 0; i < 8; i++) {
+      const heart = document.createElement('div');
+      heart.innerHTML = ['❤️', '💖', '💕', '💗', '💘', '💝'][Math.floor(Math.random() * 6)];
+      heart.style.position = 'absolute';
+      heart.style.fontSize = '30px';
+      const angle = (i / 8) * 2 * Math.PI;
+      const distance = 150;
+      heart.style.left = `calc(50% + ${Math.cos(angle) * distance}px - 15px)`;
+      heart.style.top = `calc(50% + ${Math.sin(angle) * distance}px - 15px)`;
+      heart.style.animation = 'heartbeat 1.5s infinite';
+      poemContainer.appendChild(heart);
+    }
+    
+    // Title
+    const title = document.createElement('h2');
+    title.textContent = 'Poème pour Clémence';
+    title.style.color = '#ff69b4';
+    title.style.fontFamily = 'cursive, sans-serif';
+    title.style.fontSize = '28px';
+    title.style.marginBottom = '20px';
+    
+    // Poem text - a simple acrostic poem spelling CLEMENCE
+    const poem = document.createElement('div');
+    poem.innerHTML = `
+      <p style="font-style: italic; line-height: 1.8; margin-bottom: 30px; text-align: left;">
+        <span style="color: #ff69b4; font-weight: bold;">C</span>haque jour à tes côtés est une bénédiction,<br>
+        <span style="color: #ff69b4; font-weight: bold;">L</span>umière de ma vie qui éclaire mon chemin,<br>
+        <span style="color: #ff69b4; font-weight: bold;">E</span>nsemble nous traversons les joies et les peines,<br>
+        <span style="color: #ff69b4; font-weight: bold;">M</span>on cœur bat uniquement pour toi,<br>
+        <span style="color: #ff69b4; font-weight: bold;">E</span>ternellement lié au tien par l'amour,<br>
+        <span style="color: #ff69b4; font-weight: bold;">N</span>otre histoire s'écrit chaque jour avec passion,<br>
+        <span style="color: #ff69b4; font-weight: bold;">C</span>ar tu es la seule qui compte vraiment,<br>
+        <span style="color: #ff69b4; font-weight: bold;">E</span>t je t'aimerai pour toujours.
+      </p>
+      <p style="font-weight: bold; color: #ff69b4;">Je t'aime, Clémence ❤️</p>
+    `;
+    
+    // Close button
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Fermer';
+    closeBtn.style.backgroundColor = '#ff69b4';
+    closeBtn.style.color = 'white';
+    closeBtn.style.border = 'none';
+    closeBtn.style.padding = '10px 20px';
+    closeBtn.style.borderRadius = '50px';
+    closeBtn.style.marginTop = '20px';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.style.fontWeight = 'bold';
+    closeBtn.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+    closeBtn.onclick = () => {
+      document.body.removeChild(poemContainer);
+    };
+    
+    // Assemble and add to page
+    poemContent.appendChild(title);
+    poemContent.appendChild(poem);
+    poemContent.appendChild(closeBtn);
+    poemContainer.appendChild(poemContent);
+    document.body.appendChild(poemContainer);
+    
+    // Add floating hearts
+    this.showFallingHearts();
+  }
+
+  // Easter egg: Secret page
+  showSecretPage(): void {
+    // Create a floating love message page
+    const secretPage = document.createElement('div');
+    secretPage.classList.add('secret-page');
+    
+    // Create hearts floating in the background
+    for (let i = 0; i < 20; i++) {
+      const floatingHeart = document.createElement('div');
+      floatingHeart.innerHTML = ['❤️', '💖', '💕', '💗', '💘', '💝'][Math.floor(Math.random() * 6)];
+      floatingHeart.style.position = 'absolute';
+      floatingHeart.style.fontSize = `${Math.random() * 30 + 20}px`;
+      floatingHeart.style.left = `${Math.random() * 100}%`;
+      floatingHeart.style.top = `${Math.random() * 100}%`;
+      floatingHeart.style.opacity = '0.7';
+      floatingHeart.style.animation = `heartbeat ${Math.random() * 3 + 2}s infinite`;
+      secretPage.appendChild(floatingHeart);
+    }
+    
+    // Create content
+    const content = document.createElement('div');
+    content.style.position = 'relative';
+    content.style.zIndex = '1';
+    
+    const title = document.createElement('h1');
+    title.textContent = 'Pour Clémence';
+    title.style.fontFamily = 'cursive, sans-serif';
+    
+    const message = document.createElement('p');
+    message.innerHTML = `Mon amour pour toi est comme un chemin secret, caché aux yeux des autres mais toujours présent.<br><br>
+                         Tu as trouvé ce message secret, comme tu as trouvé le chemin vers mon cœur.<br><br>
+                         Je t'aime infiniment, Clémence. ❤️`;
+    
+    const closeButton = document.createElement('button');
+    closeButton.classList.add('close-btn');
+    closeButton.textContent = 'Fermer avec amour';
+    closeButton.onclick = () => {
+      document.body.removeChild(secretPage);
+    };
+    
+    // Add photo
+    const photo = document.createElement('div');
+    photo.style.width = '200px';
+    photo.style.height = '200px';
+    photo.style.borderRadius = '50%';
+    photo.style.overflow = 'hidden';
+    photo.style.margin = '0 auto 2rem auto';
+    photo.style.border = '5px solid white';
+    photo.style.boxShadow = '0 8px 16px rgba(0,0,0,0.2)';
+    
+    const img = document.createElement('img');
+    img.src = 'assets/img/profile.webp'; // Using the same profile image
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'cover';
+    photo.appendChild(img);
+    
+    // Assemble content
+    content.appendChild(title);
+    content.appendChild(photo);
+    content.appendChild(message);
+    content.appendChild(closeButton);
+    secretPage.appendChild(content);
+    
+    // Add to page
+    document.body.appendChild(secretPage);
+    
+    // Trigger hearts falling animation
+    this.showFallingHearts();
+  }
 }
